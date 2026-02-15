@@ -1,6 +1,6 @@
 {
   "name": "khmer-time-format",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Format 12/24 hour time into Khmer (digits or words).",
   "main": "index.js",
   "types": "index.d.ts",
