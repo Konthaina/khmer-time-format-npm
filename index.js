@@ -14,7 +14,7 @@ function numberToKhmerWords(n){
 }
 function periodKm(h){ if(h<=5) return "យប់"; if(h<=11) return "ព្រឹក"; if(h<=17) return "រសៀល"; return "ល្ងាច"; }
 function to12h(h){ const x=h%12; return x===0?12:x; }
-function parseTime(s){
+function parseTimeString(s){
   const m=TIME_RE.exec(s);
   if(!m) throw new Error("Invalid time format. Use 'H:MM', 'HH:MM', or 'H:MM AM/PM'.");
   const hour=parseInt(m[1],10), minute=parseInt(m[2],10), ampm=m[3];
@@ -30,9 +30,26 @@ function parseTime(s){
   }
   return {hour24, minute};
 }
-function formatTime(timeStr, options={}){
-  const mode=options.mode||"digits";
-  const {hour24, minute}=parseTime(timeStr);
+function parseDateTime(date){
+  if(Number.isNaN(date.getTime())) throw new Error("Invalid Date instance.");
+  return {hour24:date.getHours(), minute:date.getMinutes()};
+}
+function resolveTimeInput(timeInput){
+  if(timeInput===undefined) return parseDateTime(new Date());
+  if(timeInput instanceof Date) return parseDateTime(timeInput);
+  if(typeof timeInput==="string") return parseTimeString(timeInput);
+  throw new Error("time must be a string, a Date, or omitted to use current time.");
+}
+function normalizeArgs(timeInput, options){
+  if(timeInput&&typeof timeInput==="object"&&!(timeInput instanceof Date)){
+    return {timeInput:undefined, options:timeInput};
+  }
+  return {timeInput, options:options||{}};
+}
+function formatTime(timeInput, options){
+  const normalized=normalizeArgs(timeInput, options);
+  const mode=normalized.options.mode||"digits";
+  const {hour24, minute}=resolveTimeInput(normalized.timeInput);
   const hour12=to12h(hour24);
   const period=periodKm(hour24);
   if(mode==="digits"){
